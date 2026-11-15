@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sorry, Anu 🧡</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffe6ea;--card:#fff8f4;--ink:#6b2740;--ginger:#f2954a;--ginger-d:#d9731f;--pink:#ff6f91;--line:#ffc9d3;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#2a1620;--card:#3a1f2c;--ink:#ffe3ea;--line:#5a2d40;color-scheme:dark}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Fredoka',system-ui,sans-serif;overflow-x:hidden;min-height:100vh}
+#bg{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.fl{position:absolute;bottom:-40px;animation:up linear forwards;opacity:.8}
+@keyframes up{to{transform:translateY(-110vh) rotate(25deg);opacity:0}}
+main{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:28px 18px 60px;text-align:center}
+.hero svg{width:130px;height:auto;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px) rotate(-3deg)}}
+h1{font-size:2.3rem;margin:.3em 0 .1em;font-weight:600}
+.sub{font-family:'Caveat',cursive;font-size:1.6rem;margin:0 0 18px;color:var(--ginger-d)}
+.note{background:var(--card);border:2px dashed var(--line);border-radius:22px;padding:22px 20px;text-align:left;font-family:'Caveat',cursive;font-size:1.5rem;line-height:1.4;font-weight:500}
+.note p{margin:0 0 .7em}.note p:last-child{margin:0}
+.love{font-weight:700;color:var(--pink);font-size:1.8rem}
+.btns{display:flex;gap:12px;justify-content:center;align-items:center;margin:26px 0;min-height:64px;position:relative}
+button{font:inherit;font-weight:600;border:0;border-radius:999px;padding:13px 24px;cursor:pointer;font-size:1.05rem}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.yes{background:var(--ginger);color:#fff;box-shadow:0 4px 0 var(--ginger-d)}
+.yes:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ginger-d)}
+.no{background:var(--card);color:var(--ink);border:2px solid var(--line);transition:transform .15s}
+h2{font-size:1.5rem;margin:30px 0 4px;font-weight:600}
+.hint{margin:0 0 12px;opacity:.8}
+.game{background:var(--card);border:2px solid var(--line);border-radius:22px;padding:12px}
+canvas{width:100%;max-width:420px;height:auto;touch-action:none;border-radius:14px;background:linear-gradient(#ffd9e1,#ffeede);display:block;margin:0 auto}
+.bar{display:flex;justify-content:space-between;padding:4px 8px 10px;font-weight:600}
+#win{display:none;margin-top:14px;font-family:'Caveat',cursive;font-size:1.7rem;line-height:1.3}
+#win.on{display:block;animation:pop .5s}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+#yesmsg{display:none;margin:0 0 10px;font-size:1.3rem}
+#yesmsg.on{display:block;animation:pop .5s}
+footer{margin-top:30px;font-family:'Caveat',cursive;font-size:1.5rem}
+@media (prefers-reduced-motion:reduce){.hero svg,.fl{animation:none}}
+</style>
+</head>
+<body>
+<div id="bg" aria-hidden="true"></div>
+<main>
+  <div class="hero" id="hero"></div>
+  <h1>Anu, I’m sorry</h1>
+  <p class="sub">a little note from me to you</p>
+
+  <section class="note">
+    <p>Hey Anu,</p>
+    <p>We were having such a nice conversation today, and then my head just crashed and I blocked you without thinking. I realised it a bit later, and I felt awful.</p>
+    <p>You didn’t deserve that at all. It was me being a mess, not you. I’m really, truly sorry for blocking you like that.</p>
+    <p class="love">And Anu… I love you. 🧡</p>
+  </section>
+
+  <div class="btns" id="btns">
+    <button class="yes" id="yes">Forgive me? 🥺</button>
+    <button class="no" id="no">Nope</button>
+  </div>
+  <p id="yesmsg">Yay!! Thank you, Anu 🧡🐱 Now come play with the cats.</p>
+
+  <h2>Catch the hearts with Orange</h2>
+  <p class="hint">Slide your finger (or arrow keys) to move the cat. Catch 10 hearts. Skip the broken ones 💔</p>
+  <div class="game">
+    <div class="bar"><span>Hearts: <b id="score">0</b>/10</span><button class="no" id="again" style="padding:6px 14px;font-size:.9rem">Restart</button></div>
+    <canvas id="cv" width="420" height="380" aria-label="Heart catching game"></canvas>
+    <div id="win">You caught them all, Anu! 🧡<br>Sorry again, and I love you. Always. 🐱🐱🐱</div>
+  </div>
+
+  <footer>– your loving Adiiiiiiiiiiiiiii, your baby 🧡</footer>
+</main>
+
+<script>
+function cat(size){
+  return '<svg viewBox="0 0 120 110" width="'+size+'" xmlns="http://www.w3.org/2000/svg">'+
+  '<path d="M16 40 L22 6 L50 24Z" fill="#f2954a"/><path d="M104 40 L98 6 L70 24Z" fill="#f2954a"/>'+
+  '<path d="M24 32 L26 16 L40 26Z" fill="#ffb3b8"/><path d="M96 32 L94 16 L80 26Z" fill="#ffb3b8"/>'+
+  '<ellipse cx="60" cy="62" rx="48" ry="42" fill="#f2954a"/>'+
+  '<path d="M60 20 V34 M48 22 L50 34 M72 22 L70 34" stroke="#d9731f" stroke-width="5" stroke-linecap="round"/>'+
+  '<path d="M14 58 H26 M16 70 H28 M106 58 H94 M104 70 H92" stroke="#d9731f" stroke-width="5" stroke-linecap="round"/>'+
+  '<ellipse cx="60" cy="78" rx="22" ry="16" fill="#ffe2c4"/>'+
+  '<ellipse cx="42" cy="58" rx="6" ry="8" fill="#4a2030"/><ellipse cx="78" cy="58" rx="6" ry="8" fill="#4a2030"/>'+
+  '<circle cx="44" cy="55" r="2.2" fill="#fff"/><circle cx="80" cy="55" r="2.2" fill="#fff"/>'+
+  '<path d="M54 70 H66 L60 77Z" fill="#ff7a8f"/>'+
+  '<path d="M60 77 Q54 86 47 81 M60 77 Q66 86 73 81" stroke="#4a2030" stroke-width="2.5" fill="none" stroke-linecap="round"/>'+
+  '<ellipse cx="32" cy="74" rx="7" ry="4" fill="#ff9aa8" opacity=".7"/><ellipse cx="88" cy="74" rx="7" ry="4" fill="#ff9aa8" opacity=".7"/></svg>';
+}
+document.getElementById('hero').innerHTML = cat(130);
+
+// floating background hearts and cats
+const bg=document.getElementById('bg');
+function floater(){
+  const el=document.createElement('div');el.className='fl';
+  const isCat=Math.random()<.2;
+  if(isCat){el.innerHTML=cat(36+Math.random()*20)}else{el.textContent=['🧡','💗','💖','🧡'][Math.floor(Math.random()*4)];el.style.fontSize=(16+Math.random()*22)+'px'}
+  el.style.left=Math.random()*100+'%';
+  el.style.animationDuration=(7+Math.random()*7)+'s';
+  bg.appendChild(el);setTimeout(()=>el.remove(),15000);
+}
+setInterval(floater,700);for(let i=0;i<6;i++)setTimeout(floater,i*150);
+
+// forgive buttons
+const no=document.getElementById('no'),yes=document.getElementById('yes'),btns=document.getElementById('btns');
+let dodges=0;
+const labels=['Nope','Are you sure?','Pretty please?','Anu 🥺','Okay fine'];
+function dodge(e){
+  e.preventDefault();dodges++;
+  no.textContent=labels[Math.min(dodges,labels.length-1)];
+  const r=btns.getBoundingClientRect();
+  const x=(Math.random()-.5)*(r.width-120),y=(Math.random()-.5)*50;
+  no.style.transform='translate('+x+'px,'+y+'px)';
+  yes.style.transform='scale('+Math.min(1+dodges*.12,1.7)+')';
+}
+no.addEventListener('mouseenter',dodge);no.addEventListener('click',dodge);
+no.addEventListener('touchstart',dodge,{passive:false});
+yes.addEventListener('click',()=>{
+  document.getElementById('yesmsg').classList.add('on');
+  no.style.display='none';yes.textContent='🧡 Thank you 🧡';
+  for(let i=0;i<40;i++)setTimeout(floater,i*60);
+});
+
+// game
+const cv=document.getElementById('cv'),cx=cv.getContext('2d'),W=cv.width,H=cv.height;
+const img=new Image();img.src='data:image/svg+xml;utf8,'+encodeURIComponent(cat(80));
+let items,px,score,over,last,spawn,keys={};
+function reset(){items=[];px=W/2;score=0;over=false;last=performance.now();spawn=0;
+  document.getElementById('score').textContent=0;document.getElementById('win').classList.remove('on')}
+function setX(clientX){const r=cv.getBoundingClientRect();px=Math.max(36,Math.min(W-36,(clientX-r.left)/r.width*W))}
+cv.addEventListener('pointermove',e=>setX(e.clientX));
+cv.addEventListener('pointerdown',e=>setX(e.clientX));
+addEventListener('keydown',e=>{keys[e.key]=true;if(e.key.startsWith('Arrow'))e.preventDefault()});
+addEventListener('keyup',e=>keys[e.key]=false);
+document.getElementById('again').addEventListener('click',reset);
+function loop(t){
+  const dt=Math.min((t-last)/1000,.05);last=t;
+  if(!over){
+    if(keys.ArrowLeft)px=Math.max(36,px-340*dt);
+    if(keys.ArrowRight)px=Math.min(W-36,px+340*dt);
+    spawn-=dt;
+    if(spawn<=0){spawn=.55+Math.random()*.35;
+      const bad=Math.random()<.22;
+      items.push({x:24+Math.random()*(W-48),y:-20,v:120+Math.random()*80+score*6,bad,e:bad?'💔':['🧡','💗','💖'][Math.floor(Math.random()*3)]})}
+    items.forEach(i=>i.y+=i.v*dt);
+    items=items.filter(i=>{
+      if(i.y>H-70&&i.y<H-20&&Math.abs(i.x-px)<44){
+        score=Math.max(0,score+(i.bad?-1:1));
+        document.getElementById('score').textContent=score;
+        if(score>=10){over=true;document.getElementById('win').classList.add('on');for(let k=0;k<30;k++)setTimeout(floater,k*70)}
+        return false}
+      return i.y<H+30});
+  }
+  cx.clearRect(0,0,W,H);
+  cx.font='30px serif';cx.textAlign='center';
+  items.forEach(i=>cx.fillText(i.e,i.x,i.y));
+  if(img.complete)cx.drawImage(img,px-40,H-84,80,74);
+  requestAnimationFrame(loop);
+}
+reset();requestAnimationFrame(loop);
+</script>
+</body>
+</html>
